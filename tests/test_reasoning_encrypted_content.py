@@ -17,8 +17,8 @@ from unittest.mock import AsyncMock
 
 from amplifier_core.message_models import ChatRequest, Message, ThinkingBlock
 
-from amplifier_module_provider_openai_like import OpenAIChatResponse, OpenAIProvider
-from amplifier_module_provider_openai_like._response_handling import (
+from amplifier_module_provider_aleph_alpha import OpenAIChatResponse, AlephAlphaProvider
+from amplifier_module_provider_aleph_alpha._response_handling import (
     convert_response_with_accumulated_output,
 )
 
@@ -28,9 +28,9 @@ from amplifier_module_provider_openai_like._response_handling import (
 # ---------------------------------------------------------------------------
 
 
-def _make_provider(**config_overrides) -> OpenAIProvider:
+def _make_provider(**config_overrides) -> AlephAlphaProvider:
     config = {"max_retries": 0, "use_streaming": False, **config_overrides}
-    provider = OpenAIProvider(api_key="test-key", config=config)
+    provider = AlephAlphaProvider(api_key="test-key", config=config)
     return provider
 
 
@@ -59,7 +59,7 @@ def _make_response_with_reasoning(
     )
 
 
-def _get_call_kwargs(provider: OpenAIProvider) -> dict:
+def _get_call_kwargs(provider: AlephAlphaProvider) -> dict:
     """Extract the kwargs from the last client.responses.create call."""
     return provider.client.responses.create.await_args_list[-1].kwargs
 

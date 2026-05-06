@@ -9,14 +9,14 @@ Verifies that:
    uses the conservative "unknown" capability defaults.
 """
 
-from amplifier_module_provider_openai_like import OpenAIProvider
-from amplifier_module_provider_openai_like._capabilities import get_capabilities
-from amplifier_module_provider_openai_like._constants import DEFAULT_MODEL
+from amplifier_module_provider_aleph_alpha import AlephAlphaProvider
+from amplifier_module_provider_aleph_alpha._capabilities import get_capabilities
+from amplifier_module_provider_aleph_alpha._constants import DEFAULT_MODEL
 
 
-def _make_provider(**config_overrides) -> OpenAIProvider:
+def _make_provider(**config_overrides) -> AlephAlphaProvider:
     config = {"max_retries": 0, **config_overrides}
-    return OpenAIProvider(api_key="test-key", config=config)
+    return AlephAlphaProvider(api_key="test-key", config=config)
 
 
 class TestGetInfoUsesCapabilities:

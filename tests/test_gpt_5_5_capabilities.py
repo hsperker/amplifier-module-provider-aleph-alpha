@@ -3,7 +3,7 @@
 Values verified against the live OpenAI API on 2026-04-24.
 """
 
-from amplifier_module_provider_openai_like._capabilities import get_capabilities
+from amplifier_module_provider_aleph_alpha._capabilities import get_capabilities
 
 
 class TestGPT55Family:

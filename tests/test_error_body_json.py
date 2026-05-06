@@ -17,7 +17,7 @@ import pytest
 from amplifier_core import llm_errors as kernel_errors
 from amplifier_core.message_models import ChatRequest, Message
 
-from amplifier_module_provider_openai_like import OpenAIProvider
+from amplifier_module_provider_aleph_alpha import AlephAlphaProvider
 
 
 # ---------------------------------------------------------------------------
@@ -25,10 +25,10 @@ from amplifier_module_provider_openai_like import OpenAIProvider
 # ---------------------------------------------------------------------------
 
 
-def _make_provider(**config_overrides) -> OpenAIProvider:
+def _make_provider(**config_overrides) -> AlephAlphaProvider:
     """Create a provider with retries disabled so errors propagate immediately."""
     config = {"max_retries": 0, "use_streaming": False, **config_overrides}
-    return OpenAIProvider(api_key="test-key", config=config)
+    return AlephAlphaProvider(api_key="test-key", config=config)
 
 
 def _simple_request() -> ChatRequest:

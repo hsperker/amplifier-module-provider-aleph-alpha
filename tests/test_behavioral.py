@@ -6,7 +6,7 @@ Inherits authoritative tests from amplifier-core.
 from amplifier_core.validation.behavioral import ProviderBehaviorTests
 
 
-class TestOpenaiProviderBehavior(ProviderBehaviorTests):
+class TestAlephAlphaProviderBehavior(ProviderBehaviorTests):
     """Run standard provider behavioral tests for openai.
 
     All tests from ProviderBehaviorTests run automatically.

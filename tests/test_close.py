@@ -1,19 +1,19 @@
-"""Tests for OpenAIProvider.close() method and mount() cleanup bug fix."""
+"""Tests for AlephAlphaProvider.close() method and mount() cleanup bug fix."""
 
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from amplifier_module_provider_openai_like import OpenAIProvider, mount
+from amplifier_module_provider_aleph_alpha import AlephAlphaProvider, mount
 
 
-class TestOpenAIProviderClose:
-    """Tests for the async close() method on OpenAIProvider."""
+class TestAlephAlphaProviderClose:
+    """Tests for the async close() method on AlephAlphaProvider."""
 
     @pytest.mark.asyncio
     async def test_close_calls_client_close_when_initialized(self):
         """close() should call _client.close() and nil the reference."""
-        provider = OpenAIProvider(api_key="fake-key")
+        provider = AlephAlphaProvider(api_key="fake-key")
         mock_client = MagicMock()
         mock_client.close = AsyncMock()
         provider._client = mock_client
@@ -26,7 +26,7 @@ class TestOpenAIProviderClose:
     @pytest.mark.asyncio
     async def test_close_is_safe_when_client_is_none(self):
         """close() should be a no-op when _client is None."""
-        provider = OpenAIProvider(api_key="fake-key")
+        provider = AlephAlphaProvider(api_key="fake-key")
         assert provider._client is None
 
         await provider.close()  # Should not raise
@@ -36,7 +36,7 @@ class TestOpenAIProviderClose:
     @pytest.mark.asyncio
     async def test_close_can_be_called_twice(self):
         """Calling close() twice should only close the client once."""
-        provider = OpenAIProvider(api_key="fake-key")
+        provider = AlephAlphaProvider(api_key="fake-key")
         mock_client = MagicMock()
         mock_client.close = AsyncMock()
         provider._client = mock_client

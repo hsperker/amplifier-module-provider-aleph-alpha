@@ -1,6 +1,6 @@
-# Amplifier OpenAI-like Provider Module
+# Amplifier Aleph Alpha Provider Module
 
-OpenAI-compatible Responses API provider for Amplifier, defaults targeted at the Aleph Alpha stateful Responses API. Forked from [microsoft/amplifier-module-provider-openai](https://github.com/microsoft/amplifier-module-provider-openai); the Responses API surface is identical, only the default endpoint, default model, and credential env var differ so this provider can coexist with the upstream OpenAI provider in the same Amplifier setup.
+Aleph Alpha provider for Amplifier, speaking the OpenAI Responses API. Defaults target the Aleph Alpha stateful Responses API endpoint and the `kimi-k2.5` model. Forked from [microsoft/amplifier-module-provider-openai](https://github.com/microsoft/amplifier-module-provider-openai); the Responses API surface is identical, only the default endpoint, default model, and credential env var differ so this provider can coexist with the upstream OpenAI provider in the same Amplifier setup.
 
 ## Prerequisites
 
@@ -25,7 +25,7 @@ Provides access to any OpenAI Responses API compatible endpoint as an LLM provid
 
 **Module Type:** Provider
 **Mount Point:** `providers`
-**Entry Point:** `amplifier_module_provider_openai_like:mount`
+**Entry Point:** `amplifier_module_provider_aleph_alpha:mount`
 
 ## Supported Models
 
@@ -38,7 +38,7 @@ Provides access to any OpenAI Responses API compatible endpoint as an LLM provid
 
 ```toml
 [[providers]]
-module = "provider-openai-like"
+module = "provider-aleph-alpha"
 name = "openai"
 config = {
     base_url = null,                 # Optional custom endpoint (null = OpenAI default)
@@ -73,7 +73,7 @@ config = {
 
 ```yaml
 providers:
-  - module: provider-openai-like
+  - module: provider-aleph-alpha
     config:
       debug: true # Enable debug events
       raw_debug: true # Enable raw API I/O capture
@@ -125,14 +125,14 @@ The `reasoning_summary` config controls the verbosity of reasoning blocks in the
 ```yaml
 # Concise reasoning (brief summaries)
 providers:
-  - module: provider-openai-like
+  - module: provider-aleph-alpha
     config:
       reasoning: "medium"
       reasoning_summary: "concise"
 
 # Detailed reasoning (verbose like Anthropic's thinking blocks)
 providers:
-  - module: provider-openai-like
+  - module: provider-aleph-alpha
     config:
       reasoning: "high"
       reasoning_summary: "detailed"
@@ -271,7 +271,7 @@ The provider supports automatic conversation history management via the `truncat
 
 ```yaml
 providers:
-  - module: provider-openai-like
+  - module: provider-aleph-alpha
     config:
       truncation: "auto"  # Enables automatic context management (default)
       # OR

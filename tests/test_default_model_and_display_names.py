@@ -1,7 +1,7 @@
 """Tests for DEFAULT_MODEL constant and display name mappings."""
 
-from amplifier_module_provider_openai_like._constants import DEFAULT_MODEL
-from amplifier_module_provider_openai_like import OpenAIProvider
+from amplifier_module_provider_aleph_alpha._constants import DEFAULT_MODEL
+from amplifier_module_provider_aleph_alpha import AlephAlphaProvider
 
 
 class TestDefaultModel:
@@ -15,7 +15,7 @@ class TestDisplayNames:
     """Verify display name mappings for GPT-5.4 family models."""
 
     def _get_display_name(self, model_id: str) -> str:
-        provider = OpenAIProvider(api_key="test-key")
+        provider = AlephAlphaProvider(api_key="test-key")
         return provider._model_id_to_display_name(model_id)
 
     def test_gpt_5_4_display_name(self):

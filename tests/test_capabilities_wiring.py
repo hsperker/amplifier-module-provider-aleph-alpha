@@ -10,8 +10,8 @@ import asyncio
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, patch
 
-from amplifier_module_provider_openai_like import OpenAIProvider
-from amplifier_module_provider_openai_like._capabilities import get_capabilities
+from amplifier_module_provider_aleph_alpha import AlephAlphaProvider
+from amplifier_module_provider_aleph_alpha._capabilities import get_capabilities
 
 
 # ---------------------------------------------------------------------------
@@ -19,9 +19,9 @@ from amplifier_module_provider_openai_like._capabilities import get_capabilities
 # ---------------------------------------------------------------------------
 
 
-def _make_provider(**config_overrides) -> OpenAIProvider:
+def _make_provider(**config_overrides) -> AlephAlphaProvider:
     config = {"max_retries": 0, **config_overrides}
-    provider = OpenAIProvider(api_key="test-key", config=config)
+    provider = AlephAlphaProvider(api_key="test-key", config=config)
     return provider
 
 
@@ -31,7 +31,7 @@ def _fake_models_response(model_ids: list[str]):
     return SimpleNamespace(data=data)
 
 
-def _make_list_models_provider(*model_ids: str) -> OpenAIProvider:
+def _make_list_models_provider(*model_ids: str) -> AlephAlphaProvider:
     """Create a provider wired to return specific model IDs from list_models()."""
     provider = _make_provider(filtered=False)
     provider._client = AsyncMock()
@@ -101,7 +101,7 @@ class TestListModelsUsesGetCapabilities:
         provider = _make_list_models_provider("gpt-5.1")
 
         with patch(
-            "amplifier_module_provider_openai_like.get_capabilities",
+            "amplifier_module_provider_aleph_alpha.get_capabilities",
             wraps=get_capabilities,
         ) as mock_get_caps:
             asyncio.run(provider.list_models())
@@ -148,7 +148,7 @@ class TestModelMayReasonUsesCapabilities:
         provider = _make_provider()
 
         with patch(
-            "amplifier_module_provider_openai_like.get_capabilities",
+            "amplifier_module_provider_aleph_alpha.get_capabilities",
             wraps=get_capabilities,
         ) as mock_get_caps:
             provider._model_may_reason("gpt-5.4")

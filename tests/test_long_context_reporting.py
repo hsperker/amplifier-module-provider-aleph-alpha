@@ -17,7 +17,7 @@ import asyncio
 from types import SimpleNamespace
 from unittest.mock import AsyncMock
 
-from amplifier_module_provider_openai_like import OpenAIProvider
+from amplifier_module_provider_aleph_alpha import AlephAlphaProvider
 
 
 # ---------------------------------------------------------------------------
@@ -25,9 +25,9 @@ from amplifier_module_provider_openai_like import OpenAIProvider
 # ---------------------------------------------------------------------------
 
 
-def _make_provider(**config_overrides) -> OpenAIProvider:
+def _make_provider(**config_overrides) -> AlephAlphaProvider:
     config = {"max_retries": 0, **config_overrides}
-    return OpenAIProvider(api_key="test-key", config=config)
+    return AlephAlphaProvider(api_key="test-key", config=config)
 
 
 def _fake_models_response(model_ids: list[str]):
@@ -36,10 +36,10 @@ def _fake_models_response(model_ids: list[str]):
     return SimpleNamespace(data=data)
 
 
-def _make_list_models_provider(**config_overrides) -> OpenAIProvider:
+def _make_list_models_provider(**config_overrides) -> AlephAlphaProvider:
     """Create a provider wired to return specific model IDs from list_models()."""
     config = {"max_retries": 0, "filtered": False, **config_overrides}
-    provider = OpenAIProvider(api_key="test-key", config=config)
+    provider = AlephAlphaProvider(api_key="test-key", config=config)
     provider._client = AsyncMock()
     provider._client.models.list = AsyncMock(
         return_value=_fake_models_response(["gpt-5.4"])

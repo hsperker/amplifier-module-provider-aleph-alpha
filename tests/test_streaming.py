@@ -14,7 +14,7 @@ import pytest
 from amplifier_core import ModuleCoordinator, llm_errors as kernel_errors
 from amplifier_core.message_models import ChatRequest, Message
 
-from amplifier_module_provider_openai_like import OpenAIProvider
+from amplifier_module_provider_aleph_alpha import AlephAlphaProvider
 
 
 # ---------------------------------------------------------------------------
@@ -112,7 +112,7 @@ class FakeCoordinator:
 
 def test_streaming_default_on():
     """Provider created with default config should have use_streaming=True."""
-    provider = OpenAIProvider(api_key="test-key")
+    provider = AlephAlphaProvider(api_key="test-key")
     assert provider.use_streaming is True
 
 
@@ -123,7 +123,7 @@ def test_streaming_default_on():
 
 def test_streaming_can_be_disabled():
     """Provider created with use_streaming=False should have use_streaming=False."""
-    provider = OpenAIProvider(api_key="test-key", config={"use_streaming": False})
+    provider = AlephAlphaProvider(api_key="test-key", config={"use_streaming": False})
     assert provider.use_streaming is False
 
 
@@ -134,7 +134,7 @@ def test_streaming_can_be_disabled():
 
 def test_non_streaming_path_works():
     """With use_streaming=False, the blocking create() path still works."""
-    provider = OpenAIProvider(
+    provider = AlephAlphaProvider(
         api_key="test-key",
         config={"use_streaming": False, "max_retries": 0},
     )
@@ -153,7 +153,7 @@ def test_non_streaming_path_works():
 
 def test_streaming_path_collects_response():
     """With use_streaming=True, stream is called and get_final_response() result returned."""
-    provider = OpenAIProvider(
+    provider = AlephAlphaProvider(
         api_key="test-key",
         config={"use_streaming": True, "max_retries": 0},
     )
@@ -173,7 +173,7 @@ def test_streaming_path_collects_response():
 
 def test_streaming_timeout_fires():
     """A hanging stream raises LLMTimeoutError (via asyncio.TimeoutError translation)."""
-    provider = OpenAIProvider(
+    provider = AlephAlphaProvider(
         api_key="test-key",
         config={
             "use_streaming": True,
@@ -197,7 +197,7 @@ def test_streaming_timeout_fires():
 
 def test_streaming_no_completed_event_raises():
     """A stream that finishes without completed event raises an LLMError."""
-    provider = OpenAIProvider(
+    provider = AlephAlphaProvider(
         api_key="test-key",
         config={"use_streaming": True, "max_retries": 0},
     )
@@ -217,7 +217,7 @@ def test_streaming_no_completed_event_raises():
 
 def test_streaming_extracts_rate_limit_headers():
     """Streaming response with rate limit headers → rate_limits in llm:response event."""
-    provider = OpenAIProvider(
+    provider = AlephAlphaProvider(
         api_key="test-key",
         config={"use_streaming": True, "max_retries": 0},
     )
@@ -263,7 +263,7 @@ def test_streaming_extracts_rate_limit_headers():
 
 def test_streaming_missing_headers_no_error():
     """Streaming response without rate limit headers completes without error."""
-    provider = OpenAIProvider(
+    provider = AlephAlphaProvider(
         api_key="test-key",
         config={"use_streaming": True, "max_retries": 0},
     )

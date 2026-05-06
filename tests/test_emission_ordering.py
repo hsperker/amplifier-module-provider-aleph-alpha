@@ -18,7 +18,7 @@ import pytest
 from amplifier_core import ModuleCoordinator
 from amplifier_core.message_models import ChatRequest, Message
 
-from amplifier_module_provider_openai_like import OpenAIProvider
+from amplifier_module_provider_aleph_alpha import AlephAlphaProvider
 
 
 # ---------------------------------------------------------------------------
@@ -62,13 +62,13 @@ class DummyResponse:
         return {"id": self.id, "status": self.status}
 
 
-def _make_provider(**config_overrides) -> OpenAIProvider:
+def _make_provider(**config_overrides) -> AlephAlphaProvider:
     config = {
         "raw": True,  # Enable raw field in events
         "use_streaming": False,  # Use blocking path so tests can mock create()
         **config_overrides,
     }
-    return OpenAIProvider(api_key="test-key", config=config)
+    return AlephAlphaProvider(api_key="test-key", config=config)
 
 
 def _simple_request() -> ChatRequest:
@@ -77,7 +77,7 @@ def _simple_request() -> ChatRequest:
 
 @pytest.fixture()
 def provider_with_fake_coordinator():
-    """Set up an OpenAIProvider wired to a FakeCoordinator with a DummyResponse."""
+    """Set up an AlephAlphaProvider wired to a FakeCoordinator with a DummyResponse."""
     provider = _make_provider()
     fake_coordinator = FakeCoordinator()
     provider.coordinator = cast(ModuleCoordinator, fake_coordinator)

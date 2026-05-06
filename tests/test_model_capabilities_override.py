@@ -5,12 +5,12 @@ served behind a custom base_url (e.g. Aleph Alpha's `kimi-k2.5`) without
 needing to extend the static capabilities table in _capabilities.py.
 """
 
-from amplifier_module_provider_openai_like import OpenAIProvider
+from amplifier_module_provider_aleph_alpha import AlephAlphaProvider
 
 
-def _make_provider(**overrides) -> OpenAIProvider:
+def _make_provider(**overrides) -> AlephAlphaProvider:
     config = {**overrides}
-    return OpenAIProvider(api_key="test-key", config=config)
+    return AlephAlphaProvider(api_key="test-key", config=config)
 
 
 def test_unknown_model_falls_back_to_conservative_defaults():

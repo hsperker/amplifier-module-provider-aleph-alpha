@@ -14,7 +14,7 @@ import pytest
 from amplifier_core import llm_errors as kernel_errors
 from amplifier_core.message_models import ChatRequest, Message
 
-from amplifier_module_provider_openai_like import OpenAIProvider
+from amplifier_module_provider_aleph_alpha import AlephAlphaProvider
 
 
 # ---------------------------------------------------------------------------
@@ -22,10 +22,10 @@ from amplifier_module_provider_openai_like import OpenAIProvider
 # ---------------------------------------------------------------------------
 
 
-def _make_provider(**config_overrides) -> OpenAIProvider:
+def _make_provider(**config_overrides) -> AlephAlphaProvider:
     """Create a provider with retries disabled so errors propagate immediately."""
     config = {"max_retries": 0, "use_streaming": False, **config_overrides}
-    provider = OpenAIProvider(api_key="test-key", config=config)
+    provider = AlephAlphaProvider(api_key="test-key", config=config)
     return provider
 
 
@@ -68,7 +68,7 @@ def test_rate_limit_error_translated():
         asyncio.run(provider.complete(_simple_request()))
 
     err = exc_info.value
-    assert err.provider == "openai"
+    assert err.provider == "aleph-alpha"
     assert err.status_code == 429
     assert err.retryable is True
     assert err.__cause__ is native
@@ -104,7 +104,7 @@ def test_authentication_error_translated():
         asyncio.run(provider.complete(_simple_request()))
 
     err = exc_info.value
-    assert err.provider == "openai"
+    assert err.provider == "aleph-alpha"
     assert err.retryable is False
     assert err.__cause__ is native
 
@@ -123,7 +123,7 @@ def test_bad_request_context_length():
         asyncio.run(provider.complete(_simple_request()))
 
     err = exc_info.value
-    assert err.provider == "openai"
+    assert err.provider == "aleph-alpha"
     assert err.status_code == 400
     assert err.__cause__ is native
 
@@ -141,7 +141,7 @@ def test_bad_request_content_filter():
     with pytest.raises(kernel_errors.ContentFilterError) as exc_info:
         asyncio.run(provider.complete(_simple_request()))
 
-    assert exc_info.value.provider == "openai"
+    assert exc_info.value.provider == "aleph-alpha"
     assert exc_info.value.__cause__ is native
 
 
@@ -159,7 +159,7 @@ def test_bad_request_invalid_request():
         asyncio.run(provider.complete(_simple_request()))
 
     err = exc_info.value
-    assert err.provider == "openai"
+    assert err.provider == "aleph-alpha"
     assert err.status_code == 400
     assert err.__cause__ is native
 
@@ -178,7 +178,7 @@ def test_api_status_error_5xx_translated():
         asyncio.run(provider.complete(_simple_request()))
 
     err = exc_info.value
-    assert err.provider == "openai"
+    assert err.provider == "aleph-alpha"
     assert err.status_code == 500
     assert err.retryable is True
     assert err.__cause__ is native
@@ -194,7 +194,7 @@ def test_timeout_error_translated():
         asyncio.run(provider.complete(_simple_request()))
 
     err = exc_info.value
-    assert err.provider == "openai"
+    assert err.provider == "aleph-alpha"
     assert err.retryable is True
     assert err.__cause__ is native
 
@@ -209,7 +209,7 @@ def test_generic_exception_translated():
         asyncio.run(provider.complete(_simple_request()))
 
     err = exc_info.value
-    assert err.provider == "openai"
+    assert err.provider == "aleph-alpha"
     assert err.retryable is True
     assert err.__cause__ is native
     assert "Something unexpected" in str(err)
@@ -250,7 +250,7 @@ def test_llm_response_error_event_emitted_on_kernel_error():
         if name == "llm:response" and payload.get("status") == "error"
     ]
     assert len(error_events) >= 1
-    assert error_events[0][1]["provider"] == "openai"
+    assert error_events[0][1]["provider"] == "aleph-alpha"
 
 
 def test_azure_retry_after_ms_header_parsed():
@@ -324,7 +324,7 @@ def test_cloudflare_403_raises_provider_unavailable():
         asyncio.run(provider.complete(_simple_request()))
 
     err = exc_info.value
-    assert err.provider == "openai"
+    assert err.provider == "aleph-alpha"
     assert err.status_code == 403
     assert err.retryable is True
     assert err.__cause__ is native
@@ -352,7 +352,7 @@ def test_cloudflare_403_text_fallback_raises_provider_unavailable():
         asyncio.run(provider.complete(_simple_request()))
 
     err = exc_info.value
-    assert err.provider == "openai"
+    assert err.provider == "aleph-alpha"
     assert err.status_code == 403
     assert err.retryable is True
     assert err.__cause__ is native
@@ -372,7 +372,7 @@ def test_real_api_403_raises_access_denied():
         asyncio.run(provider.complete(_simple_request()))
 
     err = exc_info.value
-    assert err.provider == "openai"
+    assert err.provider == "aleph-alpha"
     assert err.status_code == 403
     assert err.retryable is False
     assert err.__cause__ is native
@@ -384,7 +384,7 @@ def test_real_api_403_raises_access_denied():
 
 
 class TestIsCloudflareChallenge:
-    """Focused unit tests for OpenAIProvider._is_cloudflare_challenge()."""
+    """Focused unit tests for AlephAlphaProvider._is_cloudflare_challenge()."""
 
     @staticmethod
     def _make_error(
@@ -403,12 +403,12 @@ class TestIsCloudflareChallenge:
     def test_html_content_type_detected(self):
         """body=None + text/html content-type -> True."""
         err = self._make_error(headers={"content-type": "text/html"})
-        assert OpenAIProvider._is_cloudflare_challenge(err) is True
+        assert AlephAlphaProvider._is_cloudflare_challenge(err) is True
 
     def test_html_content_type_case_insensitive(self):
         """body=None + Text/HTML (unusual casing) -> True."""
         err = self._make_error(headers={"content-type": "Text/HTML; charset=utf-8"})
-        assert OpenAIProvider._is_cloudflare_challenge(err) is True
+        assert AlephAlphaProvider._is_cloudflare_challenge(err) is True
 
     def test_cloudflare_markers_in_text(self):
         """body=None + Cloudflare marker in response text -> True."""
@@ -416,7 +416,7 @@ class TestIsCloudflareChallenge:
             headers={"content-type": "application/octet-stream"},
             text="<html>Just a moment...</html>",
         )
-        assert OpenAIProvider._is_cloudflare_challenge(err) is True
+        assert AlephAlphaProvider._is_cloudflare_challenge(err) is True
 
     def test_json_body_is_real_api_error(self):
         """body=dict (real API error) -> False regardless of other signals."""
@@ -424,7 +424,7 @@ class TestIsCloudflareChallenge:
             body={"error": {"message": "forbidden"}},
             headers={"content-type": "text/html"},
         )
-        assert OpenAIProvider._is_cloudflare_challenge(err) is False
+        assert AlephAlphaProvider._is_cloudflare_challenge(err) is False
 
     def test_no_response_returns_false(self):
         """body=None + no response object -> False."""
@@ -435,7 +435,7 @@ class TestIsCloudflareChallenge:
         )
         # Simulate missing response attribute
         err.response = None  # type: ignore[assignment]
-        assert OpenAIProvider._is_cloudflare_challenge(err) is False
+        assert AlephAlphaProvider._is_cloudflare_challenge(err) is False
 
     def test_no_signals_returns_false(self):
         """body=None + application/json + no markers -> False."""
@@ -443,4 +443,4 @@ class TestIsCloudflareChallenge:
             headers={"content-type": "application/json"},
             text='{"error": "something"}',
         )
-        assert OpenAIProvider._is_cloudflare_challenge(err) is False
+        assert AlephAlphaProvider._is_cloudflare_challenge(err) is False

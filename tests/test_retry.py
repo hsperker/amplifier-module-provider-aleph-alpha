@@ -20,7 +20,7 @@ from amplifier_core import llm_errors as kernel_errors
 from amplifier_core.message_models import ChatRequest, Message
 from amplifier_core.utils.retry import RetryConfig
 
-from amplifier_module_provider_openai_like import OpenAIProvider
+from amplifier_module_provider_aleph_alpha import AlephAlphaProvider
 
 
 # ---------------------------------------------------------------------------
@@ -51,7 +51,7 @@ class DummyResponse:
         self.id = "resp_test"
 
 
-def _make_provider(**config_overrides) -> OpenAIProvider:
+def _make_provider(**config_overrides) -> AlephAlphaProvider:
     config = {
         "max_retries": 3,
         "min_retry_delay": 0.01,
@@ -59,7 +59,7 @@ def _make_provider(**config_overrides) -> OpenAIProvider:
         "use_streaming": False,  # Use blocking path so tests can mock create()
         **config_overrides,
     }
-    provider = OpenAIProvider(api_key="test-key", config=config)
+    provider = AlephAlphaProvider(api_key="test-key", config=config)
     return provider
 
 
@@ -166,7 +166,7 @@ def test_provider_retry_event_emitted():
     assert len(retry_events) == 2
 
     # First retry
-    assert retry_events[0][1]["provider"] == "openai"
+    assert retry_events[0][1]["provider"] == "aleph-alpha"
     assert retry_events[0][1]["attempt"] == 1
     assert retry_events[0][1]["error_type"] == "RateLimitError"
     assert "delay" in retry_events[0][1]
@@ -286,7 +286,7 @@ class TestRetryConfigAttribute:
 
     def test_retry_config_uses_initial_delay_not_min_delay(self):
         """RetryConfig must use initial_delay= (Rust field name), not min_delay=."""
-        provider = OpenAIProvider(
+        provider = AlephAlphaProvider(
             api_key="test-key",
             config={
                 "max_retries": 7,
@@ -301,14 +301,14 @@ class TestRetryConfigAttribute:
     def test_retry_config_jitter_is_bool(self):
         """RetryConfig.jitter must be set from bool(config), not float(config)."""
         # Default retry_jitter should be True
-        provider = OpenAIProvider(api_key="test-key", config={})
+        provider = AlephAlphaProvider(api_key="test-key", config={})
         rc = provider._retry_config
         # The provider should pass jitter=bool(...) so default is True
         # RetryConfig internally converts bool to float: True -> 0.2
         assert rc.jitter == 0.2  # True -> default jitter factor
 
         # Explicit False should result in 0.0 jitter
-        provider_no_jitter = OpenAIProvider(
+        provider_no_jitter = AlephAlphaProvider(
             api_key="test-key", config={"retry_jitter": False}
         )
         assert provider_no_jitter._retry_config.jitter == 0.0
@@ -317,7 +317,7 @@ class TestRetryConfigAttribute:
         """The jitter bool/float compat code must be removed from __init__."""
         import inspect
 
-        source = inspect.getsource(OpenAIProvider.__init__)
+        source = inspect.getsource(AlephAlphaProvider.__init__)
         # These patterns should NOT exist anymore
         assert "jitter_cfg" not in source, (
             "jitter_cfg compat variable should be removed"
@@ -328,7 +328,7 @@ class TestRetryConfigAttribute:
 
     def test_retry_config_defaults(self):
         """RetryConfig should use sensible defaults when config is empty."""
-        provider = OpenAIProvider(api_key="test-key", config={})
+        provider = AlephAlphaProvider(api_key="test-key", config={})
         assert provider._retry_config.max_retries == 5
         assert provider._retry_config.initial_delay == 1.0
         assert provider._retry_config.max_delay == 60.0
@@ -360,7 +360,7 @@ class TestNewErrorTypes:
             asyncio.run(provider.complete(_simple_request()))
 
         e = exc_info.value
-        assert e.provider == "openai"
+        assert e.provider == "aleph-alpha"
         assert e.status_code == 403
         assert e.retryable is False
         # AccessDeniedError is a subclass of AuthenticationError
@@ -380,7 +380,7 @@ class TestNewErrorTypes:
             asyncio.run(provider.complete(_simple_request()))
 
         e = exc_info.value
-        assert e.provider == "openai"
+        assert e.provider == "aleph-alpha"
         assert e.status_code == 404
         assert e.retryable is False
 

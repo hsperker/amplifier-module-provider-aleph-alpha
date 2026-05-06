@@ -15,8 +15,8 @@ import pytest
 from amplifier_core import llm_errors as kernel_errors
 from amplifier_core.message_models import ChatRequest, Message
 
-from amplifier_module_provider_openai_like import (
-    OpenAIProvider,
+from amplifier_module_provider_aleph_alpha import (
+    AlephAlphaProvider,
     _validate_gpt_5_5_pro_effort,
 )
 
@@ -123,7 +123,7 @@ class TestNoNetworkOnRejection:
     """Validator must raise BEFORE the SDK is called."""
 
     def test_string_low_blocks_network(self):
-        provider = OpenAIProvider(
+        provider = AlephAlphaProvider(
             api_key="test-key",
             config={
                 "max_retries": 0,
@@ -144,7 +144,7 @@ class TestNoNetworkOnRejection:
         mock_create.assert_not_called()
 
     def test_dict_low_blocks_network(self):
-        provider = OpenAIProvider(
+        provider = AlephAlphaProvider(
             api_key="test-key",
             config={
                 "max_retries": 0,

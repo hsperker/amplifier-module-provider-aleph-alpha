@@ -12,7 +12,7 @@ from unittest.mock import AsyncMock
 
 from amplifier_core.message_models import ChatRequest, Message
 
-from amplifier_module_provider_openai_like import OpenAIProvider
+from amplifier_module_provider_aleph_alpha import AlephAlphaProvider
 
 
 # ---------------------------------------------------------------------------
@@ -35,9 +35,9 @@ class DummyResponse:
         self.id = "resp_test"
 
 
-def _make_provider(**config_overrides) -> OpenAIProvider:
+def _make_provider(**config_overrides) -> AlephAlphaProvider:
     config = {"max_retries": 0, "use_streaming": False, **config_overrides}
-    provider = OpenAIProvider(api_key="test-key", config=config)
+    provider = AlephAlphaProvider(api_key="test-key", config=config)
     provider.client.responses.create = AsyncMock(return_value=DummyResponse())
     return provider
 
@@ -49,7 +49,7 @@ def _request_with_effort(effort: str | None) -> ChatRequest:
     )
 
 
-def _get_call_kwargs(provider: OpenAIProvider) -> dict:
+def _get_call_kwargs(provider: AlephAlphaProvider) -> dict:
     """Extract the kwargs from the last client.responses.create call."""
     return provider.client.responses.create.await_args_list[-1].kwargs
 

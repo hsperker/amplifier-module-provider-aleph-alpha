@@ -4,7 +4,7 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from amplifier_module_provider_openai_like import OpenAIProvider
+from amplifier_module_provider_aleph_alpha import AlephAlphaProvider
 
 
 class TestVisionCapability:
@@ -12,7 +12,7 @@ class TestVisionCapability:
 
     @pytest.fixture
     def provider(self):
-        return OpenAIProvider(api_key="test-key", config={"filtered": True})
+        return AlephAlphaProvider(api_key="test-key", config={"filtered": True})
 
     def _make_mock_model(self, model_id: str):
         m = MagicMock()

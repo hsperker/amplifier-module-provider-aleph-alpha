@@ -13,20 +13,20 @@ from __future__ import annotations
 from typing import Any
 from unittest.mock import MagicMock
 
-from amplifier_module_provider_openai_like import OpenAIProvider
-from amplifier_module_provider_openai_like._constants import NATIVE_TOOL_TYPES
+from amplifier_module_provider_aleph_alpha import AlephAlphaProvider
+from amplifier_module_provider_aleph_alpha._constants import NATIVE_TOOL_TYPES
 
 
 # --- Fixtures ---
 
 
-def _make_provider(**overrides: Any) -> OpenAIProvider:
+def _make_provider(**overrides: Any) -> AlephAlphaProvider:
     """Create a minimal provider instance for unit testing."""
     coordinator = MagicMock()
     coordinator.get_capability = MagicMock(return_value=None)
     coordinator.hooks = MagicMock()
     config = {**overrides}
-    provider = OpenAIProvider(
+    provider = AlephAlphaProvider(
         api_key="test-key", config=config, coordinator=coordinator
     )
     return provider

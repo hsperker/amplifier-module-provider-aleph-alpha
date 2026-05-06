@@ -15,7 +15,7 @@ from unittest.mock import AsyncMock
 from amplifier_core import ModuleCoordinator
 from amplifier_core.message_models import ChatRequest, Message
 
-from amplifier_module_provider_openai_like import OpenAIProvider
+from amplifier_module_provider_aleph_alpha import AlephAlphaProvider
 
 
 # ---------------------------------------------------------------------------
@@ -45,11 +45,11 @@ class FakeCoordinator:
         self.hooks = FakeHooks()
 
 
-def _make_provider(*, raw: bool = False) -> OpenAIProvider:
+def _make_provider(*, raw: bool = False) -> AlephAlphaProvider:
     config: dict = {"max_retries": 0, "use_streaming": False}
     if raw:
         config["raw"] = True
-    provider = OpenAIProvider(
+    provider = AlephAlphaProvider(
         api_key="test-key",
         config=config,
     )
@@ -86,36 +86,36 @@ def _make_dummy_response(status: str = "completed") -> SimpleNamespace:
 class TestRawConfigFlag:
     def test_raw_flag_defaults_to_false(self):
         """Without config, self.raw should be False."""
-        provider = OpenAIProvider(api_key="test-key", config={})
+        provider = AlephAlphaProvider(api_key="test-key", config={})
         assert provider.raw is False  # type: ignore[attr-defined]
 
     def test_raw_flag_true_when_configured(self):
         """With raw=True in config, self.raw should be True."""
-        provider = OpenAIProvider(api_key="test-key", config={"raw": True})
+        provider = AlephAlphaProvider(api_key="test-key", config={"raw": True})
         assert provider.raw is True  # type: ignore[attr-defined]
 
     def test_raw_flag_false_when_explicitly_set(self):
         """With raw=False in config, self.raw should be False."""
-        provider = OpenAIProvider(api_key="test-key", config={"raw": False})
+        provider = AlephAlphaProvider(api_key="test-key", config={"raw": False})
         assert provider.raw is False  # type: ignore[attr-defined]
 
     def test_debug_flag_removed(self):
         """The old `debug` flag should not exist on the provider."""
-        provider = OpenAIProvider(api_key="test-key", config={})
+        provider = AlephAlphaProvider(api_key="test-key", config={})
         assert not hasattr(provider, "debug"), (
             "Old `debug` config flag must be removed; use `raw` instead"
         )
 
     def test_raw_debug_flag_removed(self):
         """The old `raw_debug` flag should not exist on the provider."""
-        provider = OpenAIProvider(api_key="test-key", config={})
+        provider = AlephAlphaProvider(api_key="test-key", config={})
         assert not hasattr(provider, "raw_debug"), (
             "Old `raw_debug` config flag must be removed; use `raw` instead"
         )
 
     def test_debug_truncate_length_removed(self):
         """The old `debug_truncate_length` flag should not exist on the provider."""
-        provider = OpenAIProvider(api_key="test-key", config={})
+        provider = AlephAlphaProvider(api_key="test-key", config={})
         assert not hasattr(provider, "debug_truncate_length"), (
             "Old `debug_truncate_length` config flag must be removed"
         )
@@ -225,7 +225,7 @@ class TestLLMRequestEvent:
         hooks = cast(FakeCoordinator, provider.coordinator).hooks
         payload = hooks.payload_for("llm:request")
         assert payload is not None
-        assert payload["provider"] == "openai"
+        assert payload["provider"] == "aleph-alpha"
         assert "model" in payload
         assert "message_count" in payload
 
@@ -334,7 +334,7 @@ class TestLLMResponseEvent:
         hooks = cast(FakeCoordinator, provider.coordinator).hooks
         payload = hooks.payload_for("llm:response")
         assert payload is not None
-        assert payload["provider"] == "openai"
+        assert payload["provider"] == "aleph-alpha"
         assert "model" in payload
         assert payload["status"] == "ok"
 

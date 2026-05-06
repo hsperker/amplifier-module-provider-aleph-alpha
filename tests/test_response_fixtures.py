@@ -17,7 +17,7 @@ from pathlib import Path
 from amplifier_core.message_models import ChatRequest, Message
 from openai.types.responses import Response
 
-from amplifier_module_provider_openai_like import OpenAIProvider
+from amplifier_module_provider_aleph_alpha import AlephAlphaProvider
 
 
 FIXTURES_DIR = Path(__file__).parent / "fixtures" / "responses"
@@ -38,7 +38,7 @@ def _make_async_returning(value):
 
 def _run_through_parser(fixture_name: str):
     response = _load_fixture(fixture_name)
-    provider = OpenAIProvider(
+    provider = AlephAlphaProvider(
         api_key="test-key",
         config={"max_retries": 0, "use_streaming": False},
     )

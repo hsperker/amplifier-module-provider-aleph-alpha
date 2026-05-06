@@ -1,7 +1,10 @@
-"""Constants for OpenAI provider.
+"""Constants for the Aleph Alpha provider.
 
-This module defines constants used across the OpenAI provider implementation,
-following the principle of single source of truth.
+Defines constants used across the provider implementation, following the
+principle of single source of truth. The metadata keys keep the `openai:`
+prefix because they describe state from the OpenAI Responses API surface
+this provider speaks against, and renaming them would bump every
+serialized state record.
 """
 
 # Metadata keys for OpenAI Responses API state

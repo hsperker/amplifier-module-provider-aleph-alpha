@@ -12,7 +12,7 @@ from amplifier_core.message_models import ImageBlock
 from amplifier_core.message_models import Message
 from amplifier_core.message_models import TextBlock
 
-from amplifier_module_provider_openai_like import OpenAIProvider
+from amplifier_module_provider_aleph_alpha import AlephAlphaProvider
 
 
 @pytest.fixture
@@ -26,9 +26,9 @@ def test_image_base64():
 
 @pytest.fixture
 def openai_provider():
-    """Create an OpenAIProvider instance for testing."""
+    """Create an AlephAlphaProvider instance for testing."""
     # Use test API key - provider will work without real key for _convert_messages
-    return OpenAIProvider(api_key="test_key_for_unit_tests")
+    return AlephAlphaProvider(api_key="test_key_for_unit_tests")
 
 
 def test_image_block_conversion_to_openai_format(openai_provider, test_image_base64):
@@ -203,7 +203,7 @@ async def test_image_vision_integration_with_real_api(test_image_base64):
         pytest.skip("OPENAI_API_KEY not set - skipping integration test")
 
     # Create provider with real API key
-    provider = OpenAIProvider(api_key=api_key)
+    provider = AlephAlphaProvider(api_key=api_key)
 
     # Create request with image of Macbeth stage production
     request = ChatRequest(

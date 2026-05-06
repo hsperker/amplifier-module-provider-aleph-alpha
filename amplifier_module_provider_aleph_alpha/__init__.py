@@ -1,9 +1,10 @@
 """
-OpenAI provider module for Amplifier.
-Integrates with OpenAI's Responses API.
+Aleph Alpha provider module for Amplifier.
+Speaks the OpenAI Responses API; defaults target Aleph Alpha's
+stateful Responses endpoint.
 """
 
-__all__ = ["mount", "OpenAIProvider"]
+__all__ = ["mount", "AlephAlphaProvider"]
 
 # Amplifier module metadata
 __amplifier_module_type__ = "provider"
@@ -69,7 +70,7 @@ class OpenAIChatResponse(ChatResponse):
 
 
 async def mount(coordinator: ModuleCoordinator, config: dict[str, Any] | None = None):
-    """Mount the OpenAI-like (Aleph Alpha) provider."""
+    """Mount the Aleph Alpha provider."""
     config = config or {}
 
     # ALEPH_ALPHA_API_KEY is the canonical env var so it can coexist with
@@ -78,12 +79,12 @@ async def mount(coordinator: ModuleCoordinator, config: dict[str, Any] | None = 
     api_key = config.get("api_key") or os.environ.get("ALEPH_ALPHA_API_KEY")
 
     if not api_key:
-        logger.warning("No API key found for openai-like provider (ALEPH_ALPHA_API_KEY)")
+        logger.warning("No API key found for aleph-alpha provider (ALEPH_ALPHA_API_KEY)")
         return None
 
-    provider = OpenAIProvider(api_key=api_key, config=config, coordinator=coordinator)
-    await coordinator.mount("providers", provider, name="openai-like")
-    logger.info("Mounted OpenAIProvider (openai-like / Aleph Alpha Responses API)")
+    provider = AlephAlphaProvider(api_key=api_key, config=config, coordinator=coordinator)
+    await coordinator.mount("providers", provider, name="aleph-alpha")
+    logger.info("Mounted AlephAlphaProvider (Aleph Alpha Responses API)")
 
     # Return cleanup function
     async def cleanup():
@@ -129,11 +130,14 @@ def _validate_gpt_5_5_pro_effort(model_id: str, reasoning_param: Any) -> None:
     )
 
 
-class OpenAIProvider:
+class AlephAlphaProvider:
     """OpenAI Responses API integration."""
 
-    name = "openai"
-    api_label = "OpenAI"
+    # `name` leaks into event payloads as `provider: ...` and identifies
+    # this provider in logs and the UI. Aligned with the mount name set
+    # by mount() above and the ProviderInfo.id reported from get_info().
+    name = "aleph-alpha"
+    api_label = "Aleph Alpha"
 
     def __init__(
         self,
@@ -143,7 +147,7 @@ class OpenAIProvider:
         coordinator: ModuleCoordinator | None = None,
         client: AsyncOpenAI | None = None,
     ):
-        """Initialize OpenAI provider with Responses API client.
+        """Initialize the Aleph Alpha provider with the OpenAI Responses API client.
 
         The SDK client is created lazily on first use, allowing get_info()
         to work without valid credentials.
@@ -294,8 +298,8 @@ class OpenAIProvider:
                 caps.long_context_pricing_threshold or caps.context_window
             )
         return ProviderInfo(
-            id="openai-like",
-            display_name="OpenAI-like (Aleph Alpha)",
+            id="aleph-alpha",
+            display_name="Aleph Alpha",
             credential_env_vars=["ALEPH_ALPHA_API_KEY"],
             capabilities=["streaming", "tools", "reasoning", "batch", "json_mode"],
             defaults={
