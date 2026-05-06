@@ -9,6 +9,7 @@ __all__ = ["mount", "OpenAIProvider"]
 __amplifier_module_type__ = "provider"
 
 import asyncio
+import dataclasses
 import json
 import logging
 import os
@@ -52,7 +53,7 @@ from ._constants import METADATA_STATUS
 from ._constants import NATIVE_TOOL_TYPES
 from ._response_handling import convert_response_with_accumulated_output
 from ._response_handling import extract_reasoning_text
-from ._capabilities import get_capabilities
+from ._capabilities import ModelCapabilities, get_capabilities
 
 logger = logging.getLogger(__name__)
 
@@ -285,7 +286,7 @@ class OpenAIProvider:
 
     def get_info(self) -> ProviderInfo:
         """Get provider metadata."""
-        caps = get_capabilities(self.default_model)
+        caps = self._resolve_capabilities(self.default_model)
         if self.enable_long_context and caps.long_context_pricing_threshold:
             reported_context = caps.context_window  # 1,050,000 for GPT-5.4
         else:
@@ -385,7 +386,7 @@ class OpenAIProvider:
             # Generate display name from model ID
             display_name = self._model_id_to_display_name(model_id)
 
-            caps = get_capabilities(model_id)
+            caps = self._resolve_capabilities(model_id)
             capabilities = list(caps.capability_tags)
             if self.enable_long_context and caps.long_context_pricing_threshold:
                 reported_context = caps.context_window
@@ -461,6 +462,42 @@ class OpenAIProvider:
                 return f"GPT-{parts[1]}"
         return model_id
 
+    def _resolve_capabilities(self, model_name: str) -> ModelCapabilities:
+        """Resolve ModelCapabilities for ``model_name``.
+
+        Starts from the static get_capabilities() table, then overlays any
+        per-model overrides from config.model_capabilities. Use this for
+        models the static table classifies as "unknown" (third party
+        endpoints) or to pin specific values without modifying the table.
+
+        Config schema::
+
+            model_capabilities:
+              kimi-k2.5:
+                context_window: 131072
+                max_output_tokens: 131072
+                supports_vision: true
+                supports_reasoning: false
+                supports_streaming: true
+                capability_tags: ["tools", "streaming", "vision"]
+        """
+        base = get_capabilities(model_name)
+        if not model_name:
+            return base
+        overrides = (self.config.get("model_capabilities") or {}).get(model_name)
+        if not overrides:
+            return base
+
+        kwargs: dict[str, Any] = {}
+        for field in dataclasses.fields(base):
+            if field.name not in overrides:
+                continue
+            value = overrides[field.name]
+            if field.name == "capability_tags" and value is not None:
+                value = tuple(value)
+            kwargs[field.name] = value
+        return dataclasses.replace(base, **kwargs)
+
     def _model_may_reason(self, model_name: str) -> bool:
         """Check if the model supports reasoning via capabilities lookup.
 
@@ -468,7 +505,7 @@ class OpenAIProvider:
         """
         if not model_name:
             return False
-        caps = get_capabilities(model_name)
+        caps = self._resolve_capabilities(model_name)
         return caps.supports_reasoning
 
     def _build_continuation_input(
@@ -870,7 +907,7 @@ class OpenAIProvider:
         # when store=false (Amplifier's default), causing orphaned reasoning references.
         # Exception: explicit effort="none" suppresses include (caller opted out of reasoning).
         if not store_enabled:
-            caps = get_capabilities(model_name)
+            caps = self._resolve_capabilities(model_name)
             active_effort: str | None = None
             if "reasoning" in params:
                 r = params["reasoning"]
@@ -981,7 +1018,7 @@ class OpenAIProvider:
             and self._model_may_reason(model_name)
             and "reasoning" not in params
         ):
-            caps_for_auto = get_capabilities(model_name)
+            caps_for_auto = self._resolve_capabilities(model_name)
             if caps_for_auto.default_reasoning_effort is not None:
                 params["reasoning"] = {"summary": "auto"}
 
