@@ -4,7 +4,7 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from amplifier_module_provider_openai import OpenAIProvider
+from amplifier_module_provider_openai_like import OpenAIProvider
 
 
 class TestVisionCapability:

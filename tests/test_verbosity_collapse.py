@@ -15,7 +15,7 @@ from unittest.mock import AsyncMock
 from amplifier_core import ModuleCoordinator
 from amplifier_core.message_models import ChatRequest, Message
 
-from amplifier_module_provider_openai import OpenAIProvider
+from amplifier_module_provider_openai_like import OpenAIProvider
 
 
 # ---------------------------------------------------------------------------

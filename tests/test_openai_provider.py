@@ -7,7 +7,7 @@ from amplifier_core import ModuleCoordinator
 from amplifier_core.message_models import ChatRequest
 from amplifier_core.message_models import Message
 from amplifier_core.message_models import ToolCallBlock
-from amplifier_module_provider_openai import OpenAIProvider
+from amplifier_module_provider_openai_like import OpenAIProvider
 
 
 class DummyResponse:

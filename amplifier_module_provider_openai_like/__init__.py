@@ -36,6 +36,7 @@ from openai import AsyncOpenAI
 from ._constants import BACKGROUND_POLLING_STATUSES
 from ._constants import BACKGROUND_STATUS_FAILED
 from ._constants import DEFAULT_BACKGROUND_TIMEOUT
+from ._constants import DEFAULT_BASE_URL
 from ._constants import DEFAULT_MAX_TOKENS
 from ._constants import DEFAULT_MODEL
 from ._constants import DEFAULT_POLL_INTERVAL
@@ -67,19 +68,21 @@ class OpenAIChatResponse(ChatResponse):
 
 
 async def mount(coordinator: ModuleCoordinator, config: dict[str, Any] | None = None):
-    """Mount the OpenAI provider."""
+    """Mount the OpenAI-like (Aleph Alpha) provider."""
     config = config or {}
 
-    # Get API key from config or environment
-    api_key = config.get("api_key") or os.environ.get("OPENAI_API_KEY")
+    # ALEPH_ALPHA_API_KEY is the canonical env var so it can coexist with
+    # OPENAI_API_KEY in the same .env file (each provider stays in its own
+    # credential lane).
+    api_key = config.get("api_key") or os.environ.get("ALEPH_ALPHA_API_KEY")
 
     if not api_key:
-        logger.warning("No API key found for OpenAI provider")
+        logger.warning("No API key found for openai-like provider (ALEPH_ALPHA_API_KEY)")
         return None
 
     provider = OpenAIProvider(api_key=api_key, config=config, coordinator=coordinator)
-    await coordinator.mount("providers", provider, name="openai")
-    logger.info("Mounted OpenAIProvider (Responses API)")
+    await coordinator.mount("providers", provider, name="openai-like")
+    logger.info("Mounted OpenAIProvider (openai-like / Aleph Alpha Responses API)")
 
     # Return cleanup function
     async def cleanup():
@@ -151,8 +154,8 @@ class OpenAIProvider:
 
         # Configuration with sensible defaults (from _constants.py - single source of truth)
         self.base_url = self.config.get(
-            "base_url", None
-        )  # Optional custom endpoint (None = OpenAI default)
+            "base_url", DEFAULT_BASE_URL
+        )  # Aleph Alpha Responses API by default; override for upstream OpenAI
         self.default_model = self.config.get("default_model", DEFAULT_MODEL)
         self.max_tokens = self.config.get("max_tokens", DEFAULT_MAX_TOKENS)
         self.temperature = self.config.get(
@@ -272,9 +275,9 @@ class OpenAIProvider:
                 caps.long_context_pricing_threshold or caps.context_window
             )
         return ProviderInfo(
-            id="openai",
-            display_name="OpenAI",
-            credential_env_vars=["OPENAI_API_KEY"],
+            id="openai-like",
+            display_name="OpenAI-like (Aleph Alpha)",
+            credential_env_vars=["ALEPH_ALPHA_API_KEY"],
             capabilities=["streaming", "tools", "reasoning", "batch", "json_mode"],
             defaults={
                 "model": self.default_model,
@@ -289,17 +292,17 @@ class OpenAIProvider:
                     id="api_key",
                     display_name="API Key",
                     field_type="secret",
-                    prompt="Enter your OpenAI API key",
-                    env_var="OPENAI_API_KEY",
+                    prompt="Enter your Aleph Alpha API key",
+                    env_var="ALEPH_ALPHA_API_KEY",
                 ),
                 ConfigField(
                     id="base_url",
                     display_name="API Base URL",
                     field_type="text",
                     prompt="API base URL",
-                    env_var="OPENAI_BASE_URL",
+                    env_var="ALEPH_ALPHA_BASE_URL",
                     required=False,
-                    default="https://api.openai.com/v1",
+                    default=DEFAULT_BASE_URL,
                 ),
                 ConfigField(
                     id="reasoning_effort",

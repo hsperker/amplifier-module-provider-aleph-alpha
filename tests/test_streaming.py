@@ -14,7 +14,7 @@ import pytest
 from amplifier_core import ModuleCoordinator, llm_errors as kernel_errors
 from amplifier_core.message_models import ChatRequest, Message
 
-from amplifier_module_provider_openai import OpenAIProvider
+from amplifier_module_provider_openai_like import OpenAIProvider
 
 
 # ---------------------------------------------------------------------------

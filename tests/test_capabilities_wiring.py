@@ -10,8 +10,8 @@ import asyncio
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, patch
 
-from amplifier_module_provider_openai import OpenAIProvider
-from amplifier_module_provider_openai._capabilities import get_capabilities
+from amplifier_module_provider_openai_like import OpenAIProvider
+from amplifier_module_provider_openai_like._capabilities import get_capabilities
 
 
 # ---------------------------------------------------------------------------
@@ -101,7 +101,7 @@ class TestListModelsUsesGetCapabilities:
         provider = _make_list_models_provider("gpt-5.1")
 
         with patch(
-            "amplifier_module_provider_openai.get_capabilities",
+            "amplifier_module_provider_openai_like.get_capabilities",
             wraps=get_capabilities,
         ) as mock_get_caps:
             asyncio.run(provider.list_models())
@@ -148,7 +148,7 @@ class TestModelMayReasonUsesCapabilities:
         provider = _make_provider()
 
         with patch(
-            "amplifier_module_provider_openai.get_capabilities",
+            "amplifier_module_provider_openai_like.get_capabilities",
             wraps=get_capabilities,
         ) as mock_get_caps:
             provider._model_may_reason("gpt-5.4")

@@ -1,6 +1,6 @@
-# Amplifier OpenAI Provider Module
+# Amplifier OpenAI-like Provider Module
 
-GPT model integration for Amplifier via OpenAI's Responses API.
+OpenAI-compatible Responses API provider for Amplifier, defaults targeted at the Aleph Alpha stateful Responses API. Forked from [microsoft/amplifier-module-provider-openai](https://github.com/microsoft/amplifier-module-provider-openai); the Responses API surface is identical, only the default endpoint, default model, and credential env var differ so this provider can coexist with the upstream OpenAI provider in the same Amplifier setup.
 
 ## Prerequisites
 
@@ -19,13 +19,13 @@ powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
 
 ## Purpose
 
-Provides access to OpenAI's GPT-5 and GPT-4 models as an LLM provider for Amplifier using the Responses API for enhanced capabilities.
+Provides access to any OpenAI Responses API compatible endpoint as an LLM provider for Amplifier. Defaults to the Aleph Alpha stateful Responses API at `https://stateful-responses.aleph-alpha.stackit.run/v1` with `kimi-k2.5` as the default model. Override `base_url` and `default_model` in config to point at upstream OpenAI or any other compatible endpoint.
 
 ## Contract
 
 **Module Type:** Provider
 **Mount Point:** `providers`
-**Entry Point:** `amplifier_module_provider_openai:mount`
+**Entry Point:** `amplifier_module_provider_openai_like:mount`
 
 ## Supported Models
 
@@ -38,7 +38,7 @@ Provides access to OpenAI's GPT-5 and GPT-4 models as an LLM provider for Amplif
 
 ```toml
 [[providers]]
-module = "provider-openai"
+module = "provider-openai-like"
 name = "openai"
 config = {
     base_url = null,                 # Optional custom endpoint (null = OpenAI default)
@@ -73,7 +73,7 @@ config = {
 
 ```yaml
 providers:
-  - module: provider-openai
+  - module: provider-openai-like
     config:
       debug: true # Enable debug events
       raw_debug: true # Enable raw API I/O capture
@@ -83,8 +83,10 @@ providers:
 ## Environment Variables
 
 ```bash
-export OPENAI_API_KEY="your-api-key-here"
+export ALEPH_ALPHA_API_KEY="your-api-key-here"
 ```
+
+This provider does NOT read `OPENAI_API_KEY`. The two env vars stay in their own lanes so this provider and the upstream `provider-openai` module can coexist in the same `.env`.
 
 ## Usage
 
@@ -123,14 +125,14 @@ The `reasoning_summary` config controls the verbosity of reasoning blocks in the
 ```yaml
 # Concise reasoning (brief summaries)
 providers:
-  - module: provider-openai
+  - module: provider-openai-like
     config:
       reasoning: "medium"
       reasoning_summary: "concise"
 
 # Detailed reasoning (verbose like Anthropic's thinking blocks)
 providers:
-  - module: provider-openai
+  - module: provider-openai-like
     config:
       reasoning: "high"
       reasoning_summary: "detailed"
@@ -269,7 +271,7 @@ The provider supports automatic conversation history management via the `truncat
 
 ```yaml
 providers:
-  - module: provider-openai
+  - module: provider-openai-like
     config:
       truncation: "auto"  # Enables automatic context management (default)
       # OR

@@ -13,8 +13,8 @@ from __future__ import annotations
 from typing import Any
 from unittest.mock import MagicMock
 
-from amplifier_module_provider_openai import OpenAIProvider
-from amplifier_module_provider_openai._constants import NATIVE_TOOL_TYPES
+from amplifier_module_provider_openai_like import OpenAIProvider
+from amplifier_module_provider_openai_like._constants import NATIVE_TOOL_TYPES
 
 
 # --- Fixtures ---

@@ -17,7 +17,7 @@ import asyncio
 from types import SimpleNamespace
 from unittest.mock import AsyncMock
 
-from amplifier_module_provider_openai import OpenAIProvider
+from amplifier_module_provider_openai_like import OpenAIProvider
 
 
 # ---------------------------------------------------------------------------

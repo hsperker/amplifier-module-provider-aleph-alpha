@@ -17,7 +17,7 @@ from pathlib import Path
 from amplifier_core.message_models import ChatRequest, Message
 from openai.types.responses import Response
 
-from amplifier_module_provider_openai import OpenAIProvider
+from amplifier_module_provider_openai_like import OpenAIProvider
 
 
 FIXTURES_DIR = Path(__file__).parent / "fixtures" / "responses"

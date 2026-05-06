@@ -1,7 +1,7 @@
 [project]
-name = "amplifier-module-provider-openai"
+name = "amplifier-module-provider-openai-like"
 version = "1.0.0"
-description = "Reference provider module - OpenAI GPT integration for Amplifier"
+description = "OpenAI-compatible provider for Amplifier targeting the Aleph Alpha stateful Responses API"
 license = "MIT"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -13,7 +13,7 @@ dependencies = [
 ]
 
 [project.entry-points."amplifier.modules"]
-provider-openai = "amplifier_module_provider_openai:mount"
+provider-openai-like = "amplifier_module_provider_openai_like:mount"
 
 [build-system]
 requires = [
@@ -26,7 +26,7 @@ package = true
 
 [tool.hatch.build.targets.wheel]
 packages = [
-    "amplifier_module_provider_openai",
+    "amplifier_module_provider_openai_like",
 ]
 
 [tool.hatch.metadata]

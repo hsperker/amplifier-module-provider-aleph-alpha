@@ -12,7 +12,7 @@ from amplifier_core.message_models import ImageBlock
 from amplifier_core.message_models import Message
 from amplifier_core.message_models import TextBlock
 
-from amplifier_module_provider_openai import OpenAIProvider
+from amplifier_module_provider_openai_like import OpenAIProvider
 
 
 @pytest.fixture

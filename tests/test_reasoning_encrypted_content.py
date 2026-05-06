@@ -17,8 +17,8 @@ from unittest.mock import AsyncMock
 
 from amplifier_core.message_models import ChatRequest, Message, ThinkingBlock
 
-from amplifier_module_provider_openai import OpenAIChatResponse, OpenAIProvider
-from amplifier_module_provider_openai._response_handling import (
+from amplifier_module_provider_openai_like import OpenAIChatResponse, OpenAIProvider
+from amplifier_module_provider_openai_like._response_handling import (
     convert_response_with_accumulated_output,
 )
 

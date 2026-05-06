@@ -5,13 +5,13 @@ Verifies that:
 2. get_info() uses self.default_model instead of a hardcoded model string.
 3. The long_context_pricing_threshold vs enable_long_context interaction still
    produces a cost-safe default when a model HAS a threshold (gpt-5.4).
-   gpt-5.5 has no published threshold, so it reports its full 1M context
-   regardless of the flag.
+   The current DEFAULT_MODEL (kimi-k2.5) is not in the gpt-5 family, so it
+   uses the conservative "unknown" capability defaults.
 """
 
-from amplifier_module_provider_openai import OpenAIProvider
-from amplifier_module_provider_openai._capabilities import get_capabilities
-from amplifier_module_provider_openai._constants import DEFAULT_MODEL
+from amplifier_module_provider_openai_like import OpenAIProvider
+from amplifier_module_provider_openai_like._capabilities import get_capabilities
+from amplifier_module_provider_openai_like._constants import DEFAULT_MODEL
 
 
 def _make_provider(**config_overrides) -> OpenAIProvider:
@@ -22,16 +22,15 @@ def _make_provider(**config_overrides) -> OpenAIProvider:
 class TestGetInfoUsesCapabilities:
     """get_info() must derive defaults from ModelCapabilities."""
 
-    def test_default_model_reports_full_context(self):
-        """With the default model (gpt-5.5), get_info() reports the full 1M
-        context window because gpt-5.5 has no published pricing threshold.
+    def test_default_model_reports_capabilities_context(self):
+        """get_info() reports the context_window from the default model's
+        ModelCapabilities entry. kimi-k2.5 falls under the "unknown" family
+        with conservative defaults.
         """
         provider = _make_provider()
         info = provider.get_info()
         caps = get_capabilities(DEFAULT_MODEL)
-        assert caps.long_context_pricing_threshold is None
         assert info.defaults["context_window"] == caps.context_window
-        assert info.defaults["context_window"] == 1_000_000
 
     def test_default_model_max_output_tokens_matches_capabilities(self):
         """max_output_tokens in get_info() must match the default model's
@@ -41,18 +40,19 @@ class TestGetInfoUsesCapabilities:
         caps = get_capabilities(DEFAULT_MODEL)
         assert info.defaults["max_output_tokens"] == caps.max_output_tokens
 
-    def test_default_model_id_is_gpt_5_5(self):
+    def test_default_model_id_is_kimi(self):
         provider = _make_provider()
         info = provider.get_info()
-        assert info.defaults["model"] == "gpt-5.5"
+        assert info.defaults["model"] == "kimi-k2.5"
 
-    def test_enable_long_context_noop_for_gpt_5_5(self):
-        """gpt-5.5 has no pricing threshold, so enable_long_context is a no-op
-        for the context_window reported by get_info()."""
+    def test_enable_long_context_noop_for_default_model(self):
+        """kimi-k2.5 has no published pricing threshold, so
+        enable_long_context is a no-op for the reported context_window."""
         provider = _make_provider(enable_long_context=True)
         info = provider.get_info()
-        assert info.defaults["context_window"] == 1_000_000
-        assert info.defaults["model"] == "gpt-5.5"
+        caps = get_capabilities(DEFAULT_MODEL)
+        assert info.defaults["context_window"] == caps.context_window
+        assert info.defaults["model"] == "kimi-k2.5"
 
     def test_uses_self_default_model_not_hardcoded(self):
         """get_info() must use self.default_model, not a hardcoded string."""

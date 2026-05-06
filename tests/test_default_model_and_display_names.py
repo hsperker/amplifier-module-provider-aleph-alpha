@@ -1,14 +1,14 @@
 """Tests for DEFAULT_MODEL constant and display name mappings."""
 
-from amplifier_module_provider_openai._constants import DEFAULT_MODEL
-from amplifier_module_provider_openai import OpenAIProvider
+from amplifier_module_provider_openai_like._constants import DEFAULT_MODEL
+from amplifier_module_provider_openai_like import OpenAIProvider
 
 
 class TestDefaultModel:
-    """Verify DEFAULT_MODEL is set to gpt-5.5."""
+    """Verify DEFAULT_MODEL targets the Aleph Alpha Responses API."""
 
-    def test_default_model_is_gpt_5_5(self):
-        assert DEFAULT_MODEL == "gpt-5.5"
+    def test_default_model_is_kimi(self):
+        assert DEFAULT_MODEL == "kimi-k2.5"
 
 
 class TestDisplayNames:

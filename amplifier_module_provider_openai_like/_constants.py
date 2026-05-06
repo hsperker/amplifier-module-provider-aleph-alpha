@@ -12,8 +12,10 @@ METADATA_INCOMPLETE_REASON = "openai:incomplete_reason"
 METADATA_REASONING_ITEMS = "openai:reasoning_items"
 METADATA_CONTINUATION_COUNT = "openai:continuation_count"
 
-# Default configuration values
-DEFAULT_MODEL = "gpt-5.5"
+# Default configuration values. Defaults target the Aleph Alpha stateful
+# Responses API; override via config or environment for other endpoints.
+DEFAULT_MODEL = "kimi-k2.5"
+DEFAULT_BASE_URL = "https://stateful-responses.aleph-alpha.stackit.run/v1"
 DEFAULT_MAX_TOKENS = 4096
 DEFAULT_REASONING_SUMMARY = "detailed"
 DEFAULT_DEBUG_TRUNCATE_LENGTH = 180

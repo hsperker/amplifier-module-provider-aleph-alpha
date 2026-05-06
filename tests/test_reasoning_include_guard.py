@@ -5,7 +5,7 @@ When store=false, the provider should only send
 if reasoning is actually active in the request. Non-reasoning models
 (gpt-4.1-mini, gpt-4o, etc.) must NOT receive this parameter.
 
-See: upstream-fix-2-provider-openai-reasoning-include.md
+See: upstream-fix-2-provider-openai-like-reasoning-include.md
 """
 
 import asyncio
@@ -14,7 +14,7 @@ from unittest.mock import AsyncMock
 
 from amplifier_core.message_models import ChatRequest, Message
 
-from amplifier_module_provider_openai import OpenAIProvider
+from amplifier_module_provider_openai_like import OpenAIProvider
 
 
 # ---------------------------------------------------------------------------

@@ -4,7 +4,7 @@ import dataclasses
 
 import pytest
 
-from amplifier_module_provider_openai._capabilities import (
+from amplifier_module_provider_openai_like._capabilities import (
     ModelCapabilities,
     _detect_family,
     _detect_version,

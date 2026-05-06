@@ -4,7 +4,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from amplifier_module_provider_openai import OpenAIProvider, mount
+from amplifier_module_provider_openai_like import OpenAIProvider, mount
 
 
 class TestOpenAIProviderClose:
