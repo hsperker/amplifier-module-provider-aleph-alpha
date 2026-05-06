@@ -59,7 +59,7 @@ class TestNativeToolTypes:
 class TestConvertToolsFromRequest:
     def test_native_apply_patch_sends_type_only(self) -> None:
         """When apply_patch.engine is native, send {"type": "apply_patch"}."""
-        provider = _make_provider()
+        provider = _make_provider(enable_native_tools=True)
         provider._apply_patch_native = True
 
         tool_spec = _make_apply_patch_tool_spec()
@@ -381,7 +381,7 @@ class TestCapabilityDetection:
 
     def test_detects_native_engine_from_capability(self) -> None:
         """When apply_patch.engine capability is 'native', provider activates native mode."""
-        provider = _make_provider()
+        provider = _make_provider(enable_native_tools=True)
         assert provider._apply_patch_native is False  # starts False
 
         # Configure coordinator to return "native" for the capability query

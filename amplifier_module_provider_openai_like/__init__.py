@@ -198,6 +198,14 @@ class OpenAIProvider:
         # Set to False to use the blocking create() path (useful for tests / compat).
         self.use_streaming = self.config.get("use_streaming", True)
 
+        # Native built-in tools (apply_patch, web_search_preview, file_search,
+        # code_interpreter) are an OpenAI hosted feature. The Aleph Alpha
+        # Responses API only accepts `function` and `mcp` tool types and
+        # rejects requests that include native types. Default False so this
+        # fork works against AA out of the box; set True when overriding
+        # base_url to upstream OpenAI.
+        self.enable_native_tools = self.config.get("enable_native_tools", False)
+
         # Retry configuration — delegates to shared retry_with_backoff() from amplifier-core.
         self._retry_config = RetryConfig(
             max_retries=int(self.config.get("max_retries", 5)),
@@ -1968,19 +1976,30 @@ class OpenAIProvider:
                 self._apply_patch_native = True
 
         for tool in tools:
-            # Check if this is a native OpenAI tool (dict with recognized type)
+            # Check if this is a native OpenAI tool (dict with recognized type).
+            # Skipped entirely when enable_native_tools is False (the default
+            # for this fork) because the Aleph Alpha Responses API only
+            # accepts `function` and `mcp` tool types.
             if isinstance(tool, dict):
                 tool_type = tool.get("type", "")
                 if tool_type in NATIVE_TOOL_TYPES:
-                    # Pass through native tools directly (web_search_preview, file_search, code_interpreter)
-                    openai_tools.append(tool)
+                    if self.enable_native_tools:
+                        openai_tools.append(tool)
+                    # else: drop. Native built-ins have no function-shaped
+                    # equivalent we could send instead.
                     continue
                 # Fall through to handle as function tool if type is "function" or unrecognized
 
             # Handle ToolSpec objects (user-defined function tools)
             if hasattr(tool, "name"):
-                # Special handling for apply_patch with native engine
-                if tool.name == "apply_patch" and self._apply_patch_native:
+                # Special handling for apply_patch with native engine. Only
+                # when native tools are enabled; otherwise apply_patch is
+                # sent as a regular function tool below.
+                if (
+                    tool.name == "apply_patch"
+                    and self._apply_patch_native
+                    and self.enable_native_tools
+                ):
                     openai_tools.append({"type": "apply_patch"})
                     continue
 
