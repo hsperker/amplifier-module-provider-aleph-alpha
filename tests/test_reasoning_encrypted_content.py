@@ -214,7 +214,7 @@ def test_auto_reasoning_summary_for_implicit_reasoning_model():
     """gpt-5.2-codex without explicit reasoning config gets
     `reasoning: {summary: "auto"}` in params so the API returns summaries
     for observability."""
-    provider = _make_provider(default_model="gpt-5.2-codex")
+    provider = _make_provider(default_model="gpt-5.2-codex", disable_reasoning=False)
     provider.client.responses.create = AsyncMock(
         return_value=_make_response_with_reasoning(
             encrypted_content="enc", summary=None

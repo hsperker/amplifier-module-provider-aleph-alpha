@@ -206,6 +206,16 @@ class OpenAIProvider:
         # base_url to upstream OpenAI.
         self.enable_native_tools = self.config.get("enable_native_tools", False)
 
+        # The OpenAI Responses API `reasoning` parameter is OpenAI specific.
+        # Models like kimi-k2.5 served through the Aleph Alpha Responses API
+        # silently ignore it and instead emit reasoning inline as
+        # `<think>...</think>` text, which then leaks into the visible
+        # response and crowds out tool calls within the output budget. When
+        # this flag is True we never attach the reasoning param regardless
+        # of what kwargs the orchestrator forwards. Default True for the
+        # fork; set False when pointing at upstream OpenAI.
+        self.disable_reasoning = self.config.get("disable_reasoning", True)
+
         # Retry configuration — delegates to shared retry_with_backoff() from amplifier-core.
         self._retry_config = RetryConfig(
             max_retries=int(self.config.get("max_retries", 5)),
@@ -914,6 +924,15 @@ class OpenAIProvider:
         )
 
         thinking_enabled = bool(kwargs.get("extended_thinking"))
+        # disable_reasoning short-circuits: the model behind base_url does
+        # not understand the OpenAI Responses API `reasoning` parameter.
+        if thinking_enabled and self.disable_reasoning:
+            logger.info(
+                "[PROVIDER] extended_thinking suppressed (disable_reasoning=True); "
+                "model %s will not receive a `reasoning` parameter",
+                model_name,
+            )
+            thinking_enabled = False
         thinking_budget = None
         if thinking_enabled:
             if "reasoning" not in params:
@@ -956,7 +975,12 @@ class OpenAIProvider:
         # Only applies to models with a non-None default_reasoning_effort (o-series, gpt-5.2
         # and below). GPT-5.4+ has default_reasoning_effort=None — it doesn't reason by
         # default, so no reasoning param should be sent unless explicitly requested.
-        if self._model_may_reason(model_name) and "reasoning" not in params:
+        # Skipped entirely when disable_reasoning is set.
+        if (
+            not self.disable_reasoning
+            and self._model_may_reason(model_name)
+            and "reasoning" not in params
+        ):
             caps_for_auto = get_capabilities(model_name)
             if caps_for_auto.default_reasoning_effort is not None:
                 params["reasoning"] = {"summary": "auto"}

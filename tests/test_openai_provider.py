@@ -36,7 +36,8 @@ class FakeCoordinator:
 
 def test_extended_thinking_enables_reasoning_and_budget_adjustment():
     provider = OpenAIProvider(
-        api_key="test-key", config={"max_tokens": 1024, "use_streaming": False}
+        api_key="test-key",
+        config={"max_tokens": 1024, "use_streaming": False, "disable_reasoning": False},
     )
     provider.client.responses.create = AsyncMock(return_value=DummyResponse())
 
